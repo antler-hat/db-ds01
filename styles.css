@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #f5e9d4; /* Creamy beige */
+    --panel-color: #e0d8c8; /* Slightly darker panel */
+    --accent-color: #e67e22; /* Muted orange */
+    --dark-color: #3d3d3d; /* Dark grey */
+    --slider-track: #c4bcae;
+    --slider-thumb: var(--dark-color);
+    --font-main: 'Inter', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--dark-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.drum-machine {
+    background-color: var(--panel-color);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    width: 95%;
+    max-width: 900px;
+}
+
+h1 {
+    color: var(--dark-color);
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 1em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+}
+
+.voices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+}
+
+.voice {
+    background-color: var(--bg-color);
+    padding: 15px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.voice h2 {
+    font-family: var(--font-main);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    color: var(--accent-color);
+    padding-bottom: 5px;
+}
+
+.control {
+    margin-bottom: 12px;
+}
+
+.control label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.control .value-display {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Slider Styles */
+input[type="range"] {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    appearance: none;
+    background: var(--slider-track);
+    border-radius: 5px;
+    outline: none;
+    border: 1px solid var(--dark-color);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 20px;
+    background: var(--slider-thumb);
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid var(--dark-color);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 10px;
+    height: 20px;
+    background: var(--slider-thumb);
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid var(--dark-color);
+}
+
+/* Select Dropdown (Mod Shape) */
+select {
+    width: 100%;
+    padding: 5px;
+    font-family: var(--font-mono);
+    background-color: #fff;
+    border: 1px solid var(--dark-color);
+    border-radius: 3px;
+    font-size: 0.9em;
+    box-sizing: border-box; /* Ensures padding doesn't increase width */
+    margin-top: 2px; /* Align with slider text */
+}
+
+.info {
+    text-align: center;
+    margin-top: 25px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* Visual feedback on key press */
+.voice.playing {
+    animation: pulse 0.2s ease-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); }
+    50% { transform: scale(1.02); box-shadow: inset 0 0 10px var(--accent-color); }
+    100% { transform: scale(1); box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); }
+} 
