@@ -117,6 +117,9 @@ function triggerDrum(voiceIndex) {
     modOsc.connect(modGain);
     modGain.connect(oscillator.frequency);
     
+    // Create a master gain node for the direct signal
+    const masterGain = audioContext.createGain();
+    
     // Create delay nodes for this voice
     const delay = audioContext.createDelay(5.0); // Max 5 second delay
     const feedback = audioContext.createGain();
@@ -126,7 +129,6 @@ function triggerDrum(voiceIndex) {
     delay.connect(feedback);
     feedback.connect(delay);
     delay.connect(delayGain);
-    delayGain.connect(audioContext.destination);
     
     // Update delay parameters
     feedback.gain.setValueAtTime(voice.delayFeedback / 100, now);
@@ -134,7 +136,14 @@ function triggerDrum(voiceIndex) {
     
     // Connect audio path
     oscillator.connect(gainNode);
+    
+    // Split the signal: one path goes directly to master gain, one goes to delay
+    gainNode.connect(masterGain);
     gainNode.connect(delay);
+    
+    // Connect both paths to destination
+    masterGain.connect(audioContext.destination);
+    delayGain.connect(audioContext.destination);
     
     // Start oscillators
     oscillator.start(now);
