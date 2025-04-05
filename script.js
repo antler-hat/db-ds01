@@ -3,7 +3,7 @@ const voices = [
     { pitch: 100, modShape: 'sine', modAmount: 0, modSpeed: 1, attack: 0, decay: 30, sustain: 5, release: 100 },
     { pitch: 200, modShape: 'square', modAmount: 50, modSpeed: 1, attack: 0, decay: 50, sustain: 20, release: 200 },
     { pitch: 350, modShape: 'sawtooth', modAmount: 0, modSpeed: 1, attack: 50, decay: 10, sustain: 20, release: 200 },
-    { pitch: 600, modShape: 'sine', modAmount: 0, modSpeed: 1, attack: 1, decay: 50, sustain: 0, release: 50 }
+    { pitch: 600, modShape: 'sine', modAmount: 50, modSpeed: 10, attack: 1, decay: 50, sustain: 0, release: 580 }
 ];
 
 // Map keys to voices
