@@ -9,9 +9,7 @@ const voices = [
         attack: 0,
         decay: 30,
         sustain: 5,
-        release: 100,
-        delayLevel: 0,
-        delayFeedback: 0
+        release: 100
     },
     {
         key: 's',
@@ -22,9 +20,7 @@ const voices = [
         attack: 0,
         decay: 50,
         sustain: 20,
-        release: 200,
-        delayLevel: 0,
-        delayFeedback: 0
+        release: 200
     },
     {
         key: 'd',
@@ -35,9 +31,7 @@ const voices = [
         attack: 50,
         decay: 10,
         sustain: 20,
-        release: 200,
-        delayLevel: 0,
-        delayFeedback: 0
+        release: 200
     },
     {
         key: 'f',
@@ -48,9 +42,7 @@ const voices = [
         attack: 1,
         decay: 50,
         sustain: 0,
-        release: 580,
-        delayLevel: 0,
-        delayFeedback: 0
+        release: 580
     }
 ];
 
@@ -117,36 +109,9 @@ function triggerDrum(voiceIndex) {
     modOsc.connect(modGain);
     modGain.connect(oscillator.frequency);
     
-    // Create a master gain node for the direct signal
-    const masterGain = audioContext.createGain();
-    
-    // Create delay nodes for this voice
-    const delay = audioContext.createDelay(5.0); // Max 5 second delay
-    const feedback = audioContext.createGain();
-    const delayGain = audioContext.createGain();
-    
-    // Set up delay routing
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(delayGain);
-    
-    // Set fixed delay time to 0.5 seconds
-    delay.delayTime.setValueAtTime(0.5, now);
-    
-    // Update delay parameters
-    feedback.gain.setValueAtTime(voice.delayFeedback / 100, now);
-    delayGain.gain.setValueAtTime(voice.delayLevel / 100, now);
-    
     // Connect audio path
     oscillator.connect(gainNode);
-    
-    // Split the signal: one path goes directly to master gain, one goes to delay
-    gainNode.connect(masterGain);
-    gainNode.connect(delay);
-    
-    // Connect both paths to destination
-    masterGain.connect(audioContext.destination);
-    delayGain.connect(audioContext.destination);
+    gainNode.connect(audioContext.destination);
     
     // Start oscillators
     oscillator.start(now);
