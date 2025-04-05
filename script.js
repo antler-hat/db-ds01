@@ -14,6 +14,9 @@ const keyMap = {
     'f': 3
 };
 
+// Track which keys are currently pressed
+const pressedKeys = new Set();
+
 // Initialize audio context on first user interaction
 function initAudio() {
     if (!audioContext) {
@@ -155,11 +158,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         // Only trigger if no modifier keys are pressed (to allow browser shortcuts)
         if (!e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
-            const voiceIndex = keyMap[e.key.toLowerCase()];
-            if (voiceIndex !== undefined) {
+            const key = e.key.toLowerCase();
+            const voiceIndex = keyMap[key];
+            
+            // Only trigger if the key is mapped and not already pressed
+            if (voiceIndex !== undefined && !pressedKeys.has(key)) {
+                pressedKeys.add(key);
                 triggerDrum(voiceIndex);
             }
         }
+    });
+    
+    // Handle key up events to reset the pressed state
+    document.addEventListener('keyup', (e) => {
+        const key = e.key.toLowerCase();
+        pressedKeys.delete(key);
     });
     
     // Initialize click controls
