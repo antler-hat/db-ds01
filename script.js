@@ -1,9 +1,9 @@
 let audioContext;
 const voices = [
-    { pitch: 100, modShape: 'sine', modAmount: 0, modSpeed: 1, attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.1 },
-    { pitch: 200, modShape: 'square', modAmount: 50, modSpeed: 1, attack: 0.01, decay: 0.2, sustain: 0.0, release: 0.2 },
-    { pitch: 350, modShape: 'sawtooth', modAmount: 100, modSpeed: 1, attack: 0.005, decay: 0.15, sustain: 0.0, release: 0.1 },
-    { pitch: 600, modShape: 'sine', modAmount: 300, modSpeed: 1, attack: 0.001, decay: 0.05, sustain: 0.0, release: 0.05 }
+    { pitch: 100, modShape: 'sine', modAmount: 0, modSpeed: 1, attack: 100, decay: 50, sustain: 50, release: 50 },
+    { pitch: 200, modShape: 'square', modAmount: 50, modSpeed: 1, attack: 10, decay: 200, sustain: 0, release: 200 },
+    { pitch: 350, modShape: 'sawtooth', modAmount: 100, modSpeed: 1, attack: 5, decay: 150, sustain: 0, release: 100 },
+    { pitch: 600, modShape: 'sine', modAmount: 300, modSpeed: 1, attack: 1, decay: 50, sustain: 0, release: 50 }
 ];
 
 // Map keys to voices
