@@ -39,7 +39,6 @@ h1 {
     margin-top: 0;
     margin-bottom: 30px;
     font-size: 1em;
-    letter-spacing: 2px;
     text-transform: uppercase;
     padding-bottom: 10px;
 }
@@ -72,7 +71,8 @@ h1 {
 }
 
 .control label {
-    display: block;
+    display: flex;
+    justify-content: space-between;
     font-family: var(--font-mono);
     font-size: 0.8em;
     margin-bottom: 4px;
@@ -84,7 +84,8 @@ h1 {
     font-size: 0.8em;
     color: var(--accent-color);
     font-weight: bold;
-    margin-left: 5px;
+    text-align: right;
+    min-width: 50px;
 }
 
 /* Slider Styles */
