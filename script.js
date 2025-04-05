@@ -130,6 +130,9 @@ function triggerDrum(voiceIndex) {
     feedback.connect(delay);
     delay.connect(delayGain);
     
+    // Set fixed delay time to 0.5 seconds
+    delay.delayTime.setValueAtTime(0.5, now);
+    
     // Update delay parameters
     feedback.gain.setValueAtTime(voice.delayFeedback / 100, now);
     delayGain.gain.setValueAtTime(voice.delayLevel / 100, now);
