@@ -72,20 +72,6 @@ function initAudio() {
     }
 }
 
-// Create delay nodes for each voice
-const delayNodes = voices.map(() => {
-    const delay = audioContext.createDelay(5.0); // Max 5 second delay
-    const feedback = audioContext.createGain();
-    const delayGain = audioContext.createGain();
-    
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(delayGain);
-    delayGain.connect(audioContext.destination);
-    
-    return { delay, feedback, delayGain };
-});
-
 // Update parameter values and display
 function updateParameter(voiceIndex, param, value) {
     voices[voiceIndex][param] = value;
@@ -131,8 +117,16 @@ function triggerDrum(voiceIndex) {
     modOsc.connect(modGain);
     modGain.connect(oscillator.frequency);
     
-    // Connect to delay
-    const { delay, feedback, delayGain } = delayNodes[voiceIndex];
+    // Create delay nodes for this voice
+    const delay = audioContext.createDelay(5.0); // Max 5 second delay
+    const feedback = audioContext.createGain();
+    const delayGain = audioContext.createGain();
+    
+    // Set up delay routing
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(delayGain);
+    delayGain.connect(audioContext.destination);
     
     // Update delay parameters
     feedback.gain.setValueAtTime(voice.delayFeedback / 100, now);
