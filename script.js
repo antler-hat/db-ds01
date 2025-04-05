@@ -1,9 +1,57 @@
 let audioContext;
 const voices = [
-    { pitch: 100, modShape: 'sine', modAmount: 0, modSpeed: 1, attack: 0, decay: 30, sustain: 5, release: 100 },
-    { pitch: 200, modShape: 'square', modAmount: 50, modSpeed: 1, attack: 0, decay: 50, sustain: 20, release: 200 },
-    { pitch: 350, modShape: 'sawtooth', modAmount: 0, modSpeed: 1, attack: 50, decay: 10, sustain: 20, release: 200 },
-    { pitch: 600, modShape: 'sine', modAmount: 50, modSpeed: 10, attack: 1, decay: 50, sustain: 0, release: 580 }
+    {
+        key: 'a',
+        pitch: 100,
+        modShape: 'sine',
+        modAmount: 0,
+        modSpeed: 1,
+        attack: 0,
+        decay: 30,
+        sustain: 5,
+        release: 100,
+        delayLevel: 0,
+        delayFeedback: 0
+    },
+    {
+        key: 's',
+        pitch: 200,
+        modShape: 'square',
+        modAmount: 50,
+        modSpeed: 1,
+        attack: 0,
+        decay: 50,
+        sustain: 20,
+        release: 200,
+        delayLevel: 0,
+        delayFeedback: 0
+    },
+    {
+        key: 'd',
+        pitch: 350,
+        modShape: 'sawtooth',
+        modAmount: 0,
+        modSpeed: 1,
+        attack: 50,
+        decay: 10,
+        sustain: 20,
+        release: 200,
+        delayLevel: 0,
+        delayFeedback: 0
+    },
+    {
+        key: 'f',
+        pitch: 600,
+        modShape: 'sine',
+        modAmount: 50,
+        modSpeed: 10,
+        attack: 1,
+        decay: 50,
+        sustain: 0,
+        release: 580,
+        delayLevel: 0,
+        delayFeedback: 0
+    }
 ];
 
 // Map keys to voices
@@ -23,6 +71,20 @@ function initAudio() {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 }
+
+// Create delay nodes for each voice
+const delayNodes = voices.map(() => {
+    const delay = audioContext.createDelay(5.0); // Max 5 second delay
+    const feedback = audioContext.createGain();
+    const delayGain = audioContext.createGain();
+    
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(delayGain);
+    delayGain.connect(audioContext.destination);
+    
+    return { delay, feedback, delayGain };
+});
 
 // Update parameter values and display
 function updateParameter(voiceIndex, param, value) {
@@ -44,92 +106,50 @@ function triggerDrum(voiceIndex) {
     
     // Create oscillator
     const oscillator = audioContext.createOscillator();
-    oscillator.type = 'sine';
+    oscillator.type = voice.modShape;
     oscillator.frequency.setValueAtTime(voice.pitch, now);
     
-    // Create gain node for amplitude envelope
+    // Create gain node for envelope
     const gainNode = audioContext.createGain();
     gainNode.gain.setValueAtTime(0, now);
     
-    // Connect nodes
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    // Start oscillator
-    oscillator.start(now);
-    
     // Apply ADSR envelope
-    const attackTime = voice.attack / 1000; // Convert to seconds
-    const decayTime = voice.decay / 1000;
-    const sustainLevel = voice.sustain / 100;
-    const releaseTime = voice.release / 1000;
+    gainNode.gain.linearRampToValueAtTime(1, now + voice.attack / 1000);
+    gainNode.gain.linearRampToValueAtTime(voice.sustain / 100, now + (voice.attack + voice.decay) / 1000);
+    gainNode.gain.linearRampToValueAtTime(0, now + (voice.attack + voice.decay + voice.release) / 1000);
     
-    // Attack
-    gainNode.gain.linearRampToValueAtTime(1, now + attackTime);
+    // Create modulation oscillator
+    const modOsc = audioContext.createOscillator();
+    modOsc.type = voice.modShape;
+    modOsc.frequency.setValueAtTime(voice.modSpeed, now);
     
-    // Decay
-    gainNode.gain.linearRampToValueAtTime(sustainLevel, now + attackTime + decayTime);
+    // Create modulation gain
+    const modGain = audioContext.createGain();
+    modGain.gain.setValueAtTime(voice.modAmount / 100, now);
     
-    // Release
-    gainNode.gain.linearRampToValueAtTime(0, now + attackTime + decayTime + releaseTime);
+    // Connect modulation
+    modOsc.connect(modGain);
+    modGain.connect(oscillator.frequency);
     
-    // Stop oscillator after envelope completes
-    oscillator.stop(now + attackTime + decayTime + releaseTime);
+    // Connect to delay
+    const { delay, feedback, delayGain } = delayNodes[voiceIndex];
     
-    // Apply modulation if amount is greater than 0
-    if (voice.modAmount > 0) {
-        // Create modulator oscillator
-        const modulator = audioContext.createOscillator();
-        
-        // Set modulator frequency based on mod speed
-        const modFreq = voice.modSpeed;
-        modulator.frequency.setValueAtTime(modFreq, now);
-        
-        // Set modulator type based on mod shape
-        if (voice.modShape === 'reverseSawtooth') {
-            // For reverse sawtooth, we'll use a custom approach
-            // Create a gain node to control the modulation amount
-            const modGain = audioContext.createGain();
-            modGain.gain.setValueAtTime(voice.modAmount, now);
-            
-            // Connect modulator to gain node
-            modulator.connect(modGain);
-            
-            // Create a custom curve for the reverse sawtooth
-            const curve = new Float32Array(100);
-            for (let i = 0; i < 100; i++) {
-                // Create a reverse sawtooth that only occurs once
-                curve[i] = 1 - (i / 100);
-            }
-            
-            // Create a wave shaper to apply the custom curve
-            const waveShaper = audioContext.createWaveShaper();
-            waveShaper.curve = curve;
-            
-            // Connect the gain node to the wave shaper
-            modGain.connect(waveShaper);
-            
-            // Connect the wave shaper to the oscillator frequency
-            waveShaper.connect(oscillator.frequency);
-        } else {
-            // For standard waveforms, use the built-in oscillator types
-            modulator.type = voice.modShape;
-            
-            // Create a gain node to control the modulation amount
-            const modGain = audioContext.createGain();
-            modGain.gain.setValueAtTime(voice.modAmount, now);
-            
-            // Connect modulator to gain node
-            modulator.connect(modGain);
-            
-            // Connect gain node to oscillator frequency
-            modGain.connect(oscillator.frequency);
-        }
-        
-        // Start and stop modulator with the main oscillator
-        modulator.start(now);
-        modulator.stop(now + attackTime + decayTime + releaseTime);
-    }
+    // Update delay parameters
+    feedback.gain.setValueAtTime(voice.delayFeedback / 100, now);
+    delayGain.gain.setValueAtTime(voice.delayLevel / 100, now);
+    
+    // Connect audio path
+    oscillator.connect(gainNode);
+    gainNode.connect(delay);
+    
+    // Start oscillators
+    oscillator.start(now);
+    modOsc.start(now);
+    
+    // Stop oscillators after envelope is complete
+    const stopTime = now + (voice.attack + voice.decay + voice.release) / 1000;
+    oscillator.stop(stopTime);
+    modOsc.stop(stopTime);
     
     // Visual feedback
     const voiceElement = document.getElementById(`voice-${voiceIndex}`);
@@ -183,4 +203,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     console.log('Drum machine initialized. Press A, S, D, F to play drums.');
+});
+
+// Update value displays for all parameters
+document.querySelectorAll('input[type="range"]').forEach(input => {
+    const voiceIndex = input.dataset.voice;
+    const param = input.dataset.param;
+    const valueDisplay = document.getElementById(`${param}-val-${voiceIndex}`);
+    
+    // Update display on input change
+    input.addEventListener('input', () => {
+        const value = input.value;
+        valueDisplay.textContent = value;
+        voices[voiceIndex][param] = parseFloat(value);
+    });
+    
+    // Set initial display value
+    valueDisplay.textContent = input.value;
 }); 
